@@ -1,112 +1,185 @@
-# backend/app/main.py
-
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import os
-from dotenv import load_dotenv
+import logging # Import the logging module for better error tracking
+from fastapi import FastAPI, HTTPException, Request, status # status module for HTTP status codes
+from fastapi.middleware.cors import CORSMiddleware # Middleware for handling Cross-Origin Resource Sharing
+from pydantic import BaseModel # For data validation of request bodies
+from dotenv import load_dotenv # To load environment variables from .env file
 
-# Import your AI logic from the core module
+# Import the EnglishWritingAssistant from your core logic module
 from core.ai_assistant import EnglishWritingAssistant
 
-# --- Load Environment Variables ---
-# This ensures .env is loaded when the FastAPI app starts
-# The dotenv_path needs to point to the .env file in the 'backend' directory
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+# --- Configuration and Initialization ---
 
-# --- FastAPI App Initialization ---
+# Load environment variables from .env file.
+# This must be called before accessing any os.getenv() calls for API keys.
+load_dotenv()
+
+# Configure logging for better error visibility in the console/logs
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Initialize FastAPI application
+# Add descriptive title, description, and version for auto-generated documentation (Swagger UI)
 app = FastAPI(
     title="Pro-English-Writing-Coach API",
-    description="API for AI-powered English writing feedback.",
-    version="1.0.0"
+    description="Backend API for an AI-powered English writing assistant, providing C1-level feedback.",
+    version="1.0.0",
 )
 
-# --- CORS Configuration ---
-# IMPORTANT: Adjust origins for production!
-# For local development, allow frontend on localhost:5173 (Vite default) or localhost:3000 (CRA default)
-# and any other ports your frontend might run on.
-# You can also use a regex: r"http://localhost:\d+"
+# --- CORS Middleware Configuration ---
+# CORS (Cross-Origin Resource Sharing) is a security feature in web browsers.
+# It prevents a web page from making requests to a different domain than the one the page originated from.
+# Since our frontend (e.g., localhost:5173) will run on a different port than our backend (localhost:5000),
+# we need to explicitly allow requests from the frontend's origin.
 origins = [
-    "http://localhost",
-    "http://localhost:3000", # Common React default
-    "http://localhost:5173", # Common Vite/React default
-    # Add your deployed frontend URL here when you deploy!
-    # "https://your-deployed-frontend.com",
+    "http://localhost",        # Base URL
+    "http://localhost:5173",   # Default Vite development server port
+    "http://localhost:3000",   # Common React development server port (e.g., Create React App)
+    "http://127.0.0.1:5173",   # Alternative localhost IP
+    "http://127.0.0.1:3000",   # Alternative localhost IP
+    # Add your deployed frontend URL here when you deploy to production, e.g.:
+    # "https://your-deployed-frontend.vercel.app",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"], # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"], # Allows all headers
+    allow_origins=origins,          # List of allowed origins
+    allow_credentials=True,         # Allow cookies to be included in cross-origin requests
+    allow_methods=["*"],            # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],            # Allow all headers in the request
 )
 
-# --- Initialize AI Assistant ---
-# This is done once when the FastAPI app starts
+# Global variable to hold the AI assistant instance.
+# It will be initialized once when the application starts.
 ai_assistant_instance: EnglishWritingAssistant = None
+
+# --- Application Lifecycle Events ---
 
 @app.on_event("startup")
 async def startup_event():
     """
-    Initializes the EnglishWritingAssistant when the FastAPI application starts.
+    This function runs once when the FastAPI application starts up.
+    It's used to initialize resources that should only be created once,
+    like our LLM client.
     """
-    global ai_assistant_instance
+    global ai_assistant_instance # Declare that we are modifying the global variable
+
     try:
-        # You can make this configurable via environment variables in the future
-        # For now, explicitly set 'openai'. Uncomment and change for Gemini.
-        ai_assistant_instance = EnglishWritingAssistant(llm_provider="openai", model_name="gpt-3.5-turbo")
-        print("AI Assistant initialized successfully at API startup.")
-    except Exception as e:
-        print(f"Failed to initialize AI Assistant: {e}")
-        # In a production app, you might want to log this critical error
-        # and perhaps prevent the app from starting fully or make it unhealthy.
+        # Initialize the AI assistant.
+        # You can specify "openai" or "gemini" and the desired model name here.
+        # Ensure the corresponding API key is set in your .env file.
+        ai_assistant_instance = EnglishWritingAssistant(
+            llm_provider=os.getenv("LLM_PROVIDER", "openai"), # Default to openai if not specified in .env
+            model_name=os.getenv("LLM_MODEL_NAME", "gpt-3.5-turbo") # Default model
+        )
+        logger.info("AI Assistant initialized successfully at API startup.")
+    except ValueError as e:
+        # Catch errors specifically from the AI Assistant's initialization (e.g., missing API key)
+        logger.error(f"Failed to initialize AI Assistant: {e}. API endpoints may not function.")
+        # In a real production app, you might raise an exception here to prevent startup,
+        # but for dev, we allow it to start and handle it in endpoints.
         ai_assistant_instance = None # Ensure it's None if initialization failed
+    except Exception as e:
+        logger.critical(f"An unexpected error occurred during AI Assistant startup: {e}")
+        ai_assistant_instance = None
 
-# --- Request Body Model ---
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """
+    This function runs once when the FastAPI application is shutting down.
+    Use it to clean up resources, like closing database connections or
+    releasing external client connections, if necessary.
+    """
+    logger.info("FastAPI application shutting down.")
+    # No specific cleanup needed for OpenAI/Gemini clients for now,
+    # but this is where you'd put it if there were.
+
+# --- Pydantic Models for Request/Response Validation ---
+
 class FeedbackRequest(BaseModel):
-    text: str # The input text from the user
+    """
+    Defines the expected structure of the JSON request body for the /feedback endpoint.
+    FastAPI uses this to automatically validate incoming data.
+    """
+    text: str # Expects a single field 'text' which must be a string.
 
-# --- API Endpoint ---
+# --- API Endpoints ---
+
+@app.get("/")
+async def root():
+    """
+    A simple root endpoint to confirm the API is running.
+    Access at http://localhost:5000/
+    """
+    return {"message": "Pro-English-Writing-Coach API is running!"}
+
 @app.post("/api/v1/feedback")
 async def get_writing_feedback(request_body: FeedbackRequest):
     """
-    Receives user text and returns AI-powered writing feedback.
+    Endpoint to receive user text and return AI-powered writing feedback.
+    Access at http://localhost:5000/api/v1/feedback
+    Expects a POST request with JSON body: {"text": "Your text here."}
     """
+    # Check if the AI assistant was successfully initialized at startup
     if ai_assistant_instance is None:
+        logger.error("AI Assistant not initialized. Cannot process feedback request.")
         raise HTTPException(
-            status_code=503, # Service Unavailable
-            detail="AI Assistant is not initialized. Please check server logs for errors."
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, # 503 Service Unavailable
+            detail="AI Assistant is not ready. Please check server logs for initialization errors."
         )
 
-    user_text = request_body.text
+    user_text = request_body.text.strip()
 
-    if not user_text or not isinstance(user_text, str) or len(user_text.strip()) == 0:
+    # Basic input validation: ensure the text is not empty
+    if not user_text:
+        logger.warning("Received empty text for feedback request.")
         raise HTTPException(
-            status_code=400, # Bad Request
-            detail="Input 'text' is required and cannot be empty."
+            status_code=status.HTTP_400_BAD_REQUEST, # 400 Bad Request
+            detail="Text cannot be empty. Please provide content for analysis."
         )
 
     try:
-        # Call the get_feedback method from your ai_assistant
+        # Call the core AI assistant logic to get feedback
         feedback_result = ai_assistant_instance.get_feedback(user_text)
-        return feedback_result # FastAPI automatically converts dict to JSON
+        logger.info("Successfully generated feedback.")
+        return feedback_result
     except RuntimeError as e:
-        # Catch specific RuntimeErrors from ai_assistant (e.g., LLM API errors)
-        print(f"Error from AI Assistant: {e}")
+        # Catch RuntimeError raised from ai_assistant.py for LLM or parsing errors
+        logger.error(f"Error processing feedback: {e}")
         raise HTTPException(
-            status_code=500, # Internal Server Error
-            detail=f"An error occurred during AI processing: {e}"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, # 500 Internal Server Error
+            detail=f"An error occurred while generating feedback: {e}"
         )
     except Exception as e:
-        # Catch any other unexpected errors
-        print(f"An unexpected server error occurred: {e}")
+        # Catch any other unexpected errors that might occur
+        logger.critical(f"An unhandled exception occurred in feedback endpoint: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500, # Internal Server Error
-            detail=f"An unexpected internal server error occurred."
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected server error occurred. Please try again later."
         )
 
-# --- Root Endpoint (Optional, for health check or welcome message) ---
-@app.get("/")
-async def root():
-    return {"message": "Pro-English-Writing-Coach API is running!"}
+# --- New: Daily Task Endpoint (for future feature) ---
+# This endpoint provides a simple, hardcoded daily writing task.
+# In a more advanced version, this could fetch from a database or
+# have the LLM dynamically generate a task based on criteria.
+
+@app.get("/api/v1/daily-task")
+async def get_daily_writing_task():
+    """
+    Provides a daily writing task or prompt.
+    Access at http://localhost:5000/api/v1/daily-task
+    """
+    # A list of example daily tasks
+    daily_tasks = [
+        "Write a short essay (approx. 150-200 words) discussing the pros and cons of artificial intelligence in daily life. Focus on clarity and logical argumentation.",
+        "Describe a memorable place you've visited, using vivid imagery and sensory details. Aim for at least 100 words.",
+        "Imagine you are writing an email to a potential employer. Introduce yourself and explain why you are interested in a specific role. Keep it concise and professional.",
+        "Summarize a recent news article (of your choice) in your own words, focusing on the main points and avoiding direct quotes. Aim for 100-150 words.",
+        "Write a short story opening (about 100-150 words) that immediately grabs the reader's attention and introduces a mysterious element.",
+        "Express your opinion on the importance of lifelong learning in the modern world. Support your view with at least two reasons."
+    ]
+    import random # Import random for selecting a task
+    selected_task = random.choice(daily_tasks)
+    logger.info("Daily writing task requested.")
+    return {"task": selected_task}

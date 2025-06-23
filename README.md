@@ -8,13 +8,13 @@ An advanced AI-powered writing coach designed to elevate professional English wr
 
 Welcome to the Pro-English-Writing-Coach project! This initiative marks a fresh start for developing a sophisticated English writing assistant. Our goal is to provide comprehensive, AI-driven feedback for non-native speakers targeting C1-level proficiency in professional contexts.
 
-Moving beyond a simple MVP, this project adopts a modern decoupled architecture, separating the core AI logic and data processing into a robust Python backend API and focusing on a rich, interactive user experience with a dedicated JavaScript frontend. This approach ensures scalability, maintainability, and the flexibility to integrate advanced UI/UX features and future functionalities.
+This project adopts a modern decoupled architecture, separating the core AI logic and data processing into a robust Python backend API and focusing on a rich, interactive user experience with a dedicated JavaScript frontend. This approach ensures scalability, maintainability, and the flexibility to integrate advanced UI/UX features and future functionalities.
 
 ---
 
 ## ✨ Core Features (Initial Focus)
 
-For our initial "blank canvas" phase, we will implement the following essential functionalities, establishing a strong foundation:
+For our initial development phase, we have implemented the following essential functionalities, establishing a strong foundation:
 
 **Intelligent Text Analysis (Backend):**
 * Utilizes Large Language Models (LLMs) (e.g., OpenAI's GPT models or Google's Gemini) to perform deep linguistic analysis.
@@ -25,61 +25,53 @@ For our initial "blank canvas" phase, we will implement the following essential 
 * A clean, responsive web interface for users to input their English text.
 * Clearly displays the AI's corrected version of the text.
 * Presents the list of specific changes in an easy-to-read, actionable format for learning.
-* Handles loading states and error messages gracefully.
+* **Graceful Handling of Loading States and Error Messages.**
 
 ---
 
 ## 🛠️ Technology Stack
 
-This project will be built with a clear separation of concerns, utilizing distinct technologies for the backend and frontend:
+This project is built with a clear separation of concerns, utilizing distinct technologies for the backend and frontend:
 
 **Backend (API Server)**
 * **Python**: The core programming language.
-* **FastAPI (Recommended) / Flask**: A modern, fast, and robust web framework for building the RESTful API. FastAPI is preferred for its performance, built-in data validation (Pydantic), and automatic interactive API documentation (Swagger UI).
+* **FastAPI**: A modern, fast, and robust web framework for building the RESTful API, chosen for its performance, built-in data validation (Pydantic), and automatic interactive API documentation (Swagger UI).
 * **Large Language Models (LLMs)**: Accessed via API (e.g., OpenAI, Google Gemini) for all linguistic processing.
 * **python-dotenv**: For secure management of environment variables (like API keys) during local development.
 * **uvicorn**: An ASGI server for running FastAPI applications efficiently.
-* **python-multipart**: For handling form data if needed (e.g., file uploads, though not in initial MVP).
 
 **Frontend (Client-Side Application)**
 * **JavaScript**: The primary language for all client-side logic.
-* **React (Recommended)**: A powerful and popular JavaScript library for building dynamic, component-based user interfaces. React's ecosystem and community support are extensive.
-* **Vite**: A next-generation frontend tooling that provides an extremely fast development server and build tool for React (and other frameworks).
+* **React**: A powerful and popular JavaScript library for building dynamic, component-based user interfaces.
+* **Vite**: A next-generation frontend tooling that provides an extremely fast development server and build tool for React.
 * **HTML5/CSS3**: For structuring and styling the web application, with a strong focus on modern UI/UX principles and responsiveness.
-* **axios (or native fetch)**: For making HTTP requests from the frontend to the backend API.
+* **axios**: For making HTTP requests from the frontend to the backend API.
 
 ---
 
-## 📂 Project Structure (Planned)
+## 📂 Current Project Structure
 
-The project will follow a clear, organized directory structure:
+The project follows a clear, organized directory structure:
 
 ```Markdown
 pro-english-writing-coach/
 ├── backend/                  # Contains all Python backend API code
-│   ├── app/                  # Main FastAPI/Flask application
-│   │   ├── init.py
-│   │   ├── main.py           # Main API entry point (or app.py for Flask)
+│   ├── app/                  # Main FastAPI application
+│   │   ├── main.py           # Main API entry point
 │   │   └── api/              # API routes/endpoints
-│   │       └── v1/
-│   │           └── feedback.py # Logic for the /api/v1/feedback endpoint
+│   │       └── v1/           # Version 1 of the API
 │   ├── core/                 # Core AI/LLM interaction logic
 │   │   └── ai_assistant.py   # Encapsulates LLM calls and response parsing
-│   ├── config.py             # Configuration settings (e.g., LLM provider)
 │   ├── .env.example          # Example file for environment variables
 │   ├── requirements.txt      # Python dependencies for the backend
 │   └── README.md             # Backend-specific README (optional, but good practice)
 │
 ├── frontend/                 # Contains all JavaScript/React frontend code
-│   ├── public/               # Static assets
+│   ├── public/               # Static assets (e.g., favicon)
 │   ├── src/                  # Source code for the React app
 │   │   ├── App.jsx           # Main application component
-│   │   ├── index.css         # Global styles
-│   │   ├── main.jsx          # React entry point
-│   │   └── components/       # Reusable UI components
-│   │       ├── TextInput.jsx
-│   │       ├── FeedbackDisplay.jsx
-│   │       └── ChangesList.jsx
+│   │   ├── App.css           # Global/component-specific styles
+│   │   └── main.jsx          # React entry point
 │   ├── package.json          # Node.js/npm dependencies for the frontend
 │   ├── vite.config.js        # Vite configuration
 │   └── README.md             # Frontend-specific README (optional)
@@ -90,6 +82,8 @@ pro-english-writing-coach/
 ```
 ---
 
+---
+
 ## ⚙️ Getting Started (Step-by-Step Setup)
 
 To get this project running locally, you'll need to set up both the backend and the frontend.
@@ -97,6 +91,7 @@ To get this project running locally, you'll need to set up both the backend and 
 **Prerequisites**
 * Python 3.9+ (recommended for FastAPI features)
 * Node.js (LTS version) and npm (comes with Node.js)
+* Git
 
 ### A. Backend Setup
 
@@ -128,13 +123,12 @@ To get this project running locally, you'll need to set up both the backend and 
     (You'll see `(venv)` in your terminal prompt when activated.)
 
 5.  **Install Python Dependencies:**
-    Create a `requirements.txt` file in the `backend/` directory with the following content:
+    Ensure your `backend/requirements.txt` file contains the necessary dependencies:
     ```
     fastapi
     uvicorn[standard]
     openai # Or google-generativeai
     python-dotenv
-    python-multipart
     ```
     Then install:
     ```bash
@@ -143,7 +137,7 @@ To get this project running locally, you'll need to set up both the backend and 
 
 6.  **Set Up Your LLM API Key:**
     Obtain an API key from your chosen LLM provider (e.g., OpenAI, Google AI Studio).
-    Create a file named `.env` in the `backend/` directory:
+    Create a file named `.env` in the `backend/` directory (if it doesn't exist) and add your key:
     ```
     # For OpenAI:
     OPENAI_API_KEY="your_openai_api_key_here"
@@ -151,15 +145,17 @@ To get this project running locally, you'll need to set up both the backend and 
     # OR (if using Google Gemini):
     # GEMINI_API_KEY="your_gemini_api_key_here"
     ```
-    Replace `"your_api_key_here"` with your actual API key.
+    Replace `"your_openai_api_key_here"` (or `GEMINI_API_KEY`) with your actual API key.
     **Important:** This `.env` file is excluded by `.gitignore` to prevent it from being committed to your public repository.
 
 ### B. Frontend Setup
 
 1.  **Navigate to Frontend Directory:**
+    From the project root:
     ```bash
-    cd ../frontend # Go back to project root, then into frontend
+    cd frontend
     ```
+    (If you are in the `backend/` directory, use `cd ../frontend`)
 
 2.  **Install JavaScript Dependencies:**
     ```bash
@@ -169,7 +165,7 @@ To get this project running locally, you'll need to set up both the backend and 
 
 3.  **Configure Frontend API URL:**
     Your frontend will make API requests to your backend. During local development, the backend will typically run on `http://localhost:5000`.
-    Ensure your frontend code (e.g., in `src/App.jsx` or an API service file) points to this URL: `http://localhost:5000/api/v1/feedback`.
+    Ensure your frontend code (e.g., in `src/App.jsx`) points to this URL: `http://localhost:5000`.
     For production deployment, this URL will need to be updated to your deployed backend's public URL.
 
 ---
@@ -184,7 +180,7 @@ Open your first terminal window.
 Navigate to the `backend/` directory:
 ```bash
 cd pro-english-writing-coach/backend
-```
+
 Activate your Python virtual environment.
 Run the FastAPI backend server:
 ```bash
@@ -206,10 +202,10 @@ Your default web browser should automatically open to `http://localhost:5173` (V
 
 ## 💡 Usage
 * **Ensure both the backend API server and the frontend development server are running.**
-* **Access the Frontend: Open your web browser and navigate to the frontend's address (e.g., `http://localhost:5173)`.**
-* **Paste Your Text: Use the provided text area in the web interface to input the English text you want to analyze.**
-* **Get Feedback: Click the "Get Feedback" button.**
-* **Review Corrections: The frontend will send your text to the backend API. Once processed by the LLM, the corrected text and the detailed list of changes will be displayed directly in the user interface.**
+* **Access the Frontend:** Open your web browser and navigate to the frontend's address (e.g., `http://localhost:5173)`.
+* **Paste Your Text:** Use the provided text area in the web interface to input the English text you want to analyze.
+* **Get Feedback:** Click the "Get Feedback" button.
+* **Review Corrections:** The frontend will send your text to the backend API. Once processed by the LLM, the corrected text and the detailed list of changes will be displayed directly in the user interface.**
 
 ## 🎯 Project Goal
 This project's overarching goal is to become an indispensable tool for non-native English speakers to achieve and maintain C1 professional writing proficiency. By providing clear, actionable, and consistent feedback through a robust and user-friendly platform, we aim to facilitate continuous learning and mastery of advanced English writing skills.
@@ -217,18 +213,21 @@ This project's overarching goal is to become an indispensable tool for non-nativ
 ## 📈 Future Enhancements (Roadmap)
 As a blank canvas, the possibilities are vast! Planned future enhancements include:
 
-* **Advanced Grammar & Style Focus: Granular control for users to target specific grammar rules (e.g., article usage, conditional sentences), conciseness, or tone.**
-* **Vocabulary & Idiom Suggestions: Smart suggestions for synonyms, collocations, and idiomatic expressions to enrich writing.**
-* **Personalized Progress Tracking: User accounts to track common errors over time, show improvement metrics, and offer tailored exercises.**
-* **Interactive Learning Modules: Short, guided lessons or prompts based on identified weaknesses.**
-* **Multi-Modal Input: Potentially allow voice input or document uploads.**
-* **Real-time / Inline Feedback: Providing suggestions as the user types, similar to advanced grammar checkers.**
-* **Advanced Analytics & Reporting: For users to understand their writing patterns and areas for improvement.**
-* **User Authentication & Profiles: Secure user management for personalized experiences.**
-* **Deployment Automation: CI/CD pipelines for automated testing and deployment.**
+* **Daily Writing Tasks:** Provide users with daily prompts or exercises to encourage consistent practice and structured learning, potentially with gamification elements.
+* **Advanced Grammar & Style Focus:** Granular control for users to target specific grammar rules (e.g., article usage, conditional sentences), conciseness, or tone.
+* **Vocabulary & Idiom Suggestions:** Smart suggestions for synonyms, collocations, and idiomatic expressions to enrich writing.
+* **Personalized Progress Tracking:** User accounts to track common errors over time, show improvement metrics, and offer tailored exercises.
+* **Interactive Learning Modules:** Short, guided lessons or prompts based on identified weaknesses.
+* **Multi-Modal Input:** Potentially allow voice input or document uploads.
+* **Real-time / Inline Feedback:** Providing suggestions as the user types, similar to advanced grammar checkers.
+* **Advanced Analytics & Reporting:** For users to understand their writing patterns and areas for improvement.
+* **User Authentication & Profiles:** Secure user management for personalized experiences.
+* **Deployment Automation:** CI/CD pipelines for automated testing and deployment.
 
 ## 🤝 Contributing
 We welcome contributions from the community! If you're interested in contributing, please review our (future) CONTRIBUTING.md guide and adhere to our (future) CODE_OF_CONDUCT.md.
 
 ## 📄 License
 This project is licensed under the MIT License - see the `LICENSE` file for details.
+
+---

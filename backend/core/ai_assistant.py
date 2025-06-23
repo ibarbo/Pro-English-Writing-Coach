@@ -1,186 +1,202 @@
-# backend/core/ai_assistant.py
-
 import os
-# --- Choose ONE of these imports based on your LLM provider ---
-import openai
-# import google.generativeai as genai
+import openai # OpenAI Python client library
+import google.generativeai as genai # Google Generative AI Python client library
+from dotenv import load_dotenv # Library to load environment variables from .env file
+
+# Load environment variables from .env file at the very beginning.
+# This ensures that API keys are available when the application starts.
+load_dotenv()
 
 class EnglishWritingAssistant:
-    def __init__(self, llm_provider: str = "openai", model_name: str = None):
+    """
+    A class to interact with Large Language Models (LLMs) to provide English writing feedback.
+    It supports different LLM providers like OpenAI (GPT models) and Google (Gemini models).
+    """
+
+    def __init__(self, llm_provider: str = "openai", model_name: str = "gpt-3.5-turbo"):
         """
-        Initializes the EnglishWritingAssistant with the specified LLM provider.
-        Loads API key from environment variables.
+        Initializes the EnglishWritingAssistant with a specific LLM provider and model.
 
         Args:
-            llm_provider (str): The LLM provider to use ('openai' or 'gemini').
-            model_name (str, optional): Specific model name to use.
-                                        Defaults to "gpt-3.5-turbo" for OpenAI,
-                                        "gemini-pro" for Gemini.
+            llm_provider (str): The name of the LLM provider (e.g., "openai", "gemini").
+            model_name (str): The specific model name to use (e.g., "gpt-3.5-turbo", "gemini-pro").
+
+        Raises:
+            ValueError: If the API key is missing or an unsupported LLM provider is specified.
         """
-        self.llm_provider = llm_provider.lower()
-        self.client = None
+        self.llm_provider = llm_provider.lower() # Convert to lowercase for consistent comparison
         self.model_name = model_name
 
+        # --- Initialize LLM Client based on provider ---
         if self.llm_provider == "openai":
             api_key = os.getenv("OPENAI_API_KEY")
             if not api_key:
-                raise ValueError("OPENAI_API_KEY environment variable not set for OpenAI.")
+                # Raise an error if API key is not found, preventing the app from running without it
+                raise ValueError("OPENAI_API_KEY not found in environment variables.")
+            # Initialize OpenAI client
             self.client = openai.OpenAI(api_key=api_key)
-            if not self.model_name:
-                self.model_name = "gpt-3.5-turbo" # Default for OpenAI
-        # elif self.llm_provider == "gemini":
-        #     api_key = os.getenv("GEMINI_API_KEY")
-        #     if not api_key:
-        #         raise ValueError("GEMINI_API_KEY environment variable not set for Gemini.")
-        #     genai.configure(api_key=api_key)
-        #     if not self.model_name:
-        #         self.model_name = 'gemini-pro' # Default for Gemini
-        #     self.client = genai.GenerativeModel(self.model_name)
+        elif self.llm_provider == "gemini":
+            api_key = os.getenv("GEMINI_API_KEY")
+            if not api_key:
+                # Raise an error if API key is not found
+                raise ValueError("GEMINI_API_KEY not found in environment variables.")
+            # Configure Google Generative AI client
+            genai.configure(api_key=api_key)
+            # Get the Generative Model instance
+            self.client = genai.GenerativeModel(model_name)
         else:
-            raise ValueError(f"Unsupported LLM provider: '{llm_provider}'. Choose 'openai' or 'gemini'.")
+            # Handle unsupported LLM providers gracefully
+            raise ValueError(f"Unsupported LLM provider: {llm_provider}. Supported are 'openai' or 'gemini'.")
 
-        print(f"AI Assistant initialized using {self.llm_provider} with model {self.model_name}")
+        print(f"AI Assistant initialized successfully using {self.llm_provider} with model {self.model_name}.")
+
 
     def get_feedback(self, text: str) -> dict:
         """
-        Sends the user text to the configured LLM and returns parsed feedback.
-        The parsing logic strictly expects a specific output format from the LLM.
+        Sends the user's text to the LLM and processes its response to extract
+        corrected text and a list of changes.
 
         Args:
-            text (str): The English text provided by the user for analysis.
+            text (str): The input English text provided by the user.
 
         Returns:
-            dict: A dictionary containing:
-                - "corrected_text" (str): The AI's refined version of the input text.
-                - "changes_list" (list[str]): A list of specific changes with explanations.
+            dict: A dictionary containing 'corrected_text' (str) and 'changes_list' (list of str).
+
+        Raises:
+            RuntimeError: If there's an error during the LLM API call or during response parsing.
         """
-        if not self.client:
-            raise RuntimeError(f"LLM client not initialized for {self.llm_provider}. Check API key configuration.")
+        # --- Prompt Engineering ---
+        # This is the core instruction given to the LLM. It defines the AI's role,
+        # the task it needs to perform, and crucially, the *desired output format*.
+        # A structured output format helps in reliably parsing the LLM's response.
+        prompt = f"""
+        You are an advanced English writing assistant specializing in C1-level professional proficiency.
+        Your task is to review the provided text for grammar, spelling, punctuation, awkward phrasing, and clarity.
+        Do NOT change the meaning or intent of the original text.
+        Your output MUST follow this exact structure:
 
-        # --- LLM Prompt (Crucial Part!) ---
-        # This prompt is engineered to encourage the LLM to provide structured output
-        prompt = f"""You are an English writing assistant specializing in C1-level proficiency for professional contexts.
-Review the following text for any grammatical errors, spelling mistakes, and awkward phrasing that a non-native speaker might make.
-Provide the corrected text and then list the specific changes you made, with a brief explanation for each change.
-Focus on clarity, naturalness, and grammatical accuracy suitable for professional communication.
+        ---START_RESPONSE---
+        CORRECTED_TEXT: [Your corrected version of the input text here]
+        CHANGES_LIST:
+        - [Description of Change 1. Be concise and educational. E.g., "Changed 'was' to 'were' - subject-verb agreement."]
+        - [Description of Change 2. E.g., "Removed 'very' - improved conciseness."]
+        - [Description of Change 3.]
+        ...
+        ---END_RESPONSE---
 
-Format your response strictly as follows:
----START_RESPONSE---
-CORRECTED_TEXT: [The corrected version of the input text goes here.]
-CHANGES_LIST:
-- [Change 1 with brief explanation. e.g., 'Changed "an apple" to "a apple" - corrected article usage.']
-- [Change 2 with brief explanation. e.g., 'Rephrased "I want to do" to "I would like to do" - improved formality.']
----END_RESPONSE---
+        If no corrections or changes are needed, state that clearly in the CHANGES_LIST as "- No changes needed."
+        Ensure all explanations in CHANGES_LIST are clear and helpful for a C1 learner.
 
-Original Text:
-"{text}"
-"""
+        TEXT TO ANALYZE:
+        {text}
+        """
 
-        full_feedback_text = ""
         try:
+            # --- LLM API Call ---
             if self.llm_provider == "openai":
+                # OpenAI specific API call parameters
                 response = self.client.chat.completions.create(
                     model=self.model_name,
                     messages=[
-                        {"role": "system", "content": "You are an English writing assistant that provides clear, concise, and structured feedback for professional C1 English."},
+                        {"role": "system", "content": "You are a helpful English writing assistant."},
                         {"role": "user", "content": prompt}
                     ],
-                    temperature=0.7, # Adjust temperature for creativity/determinism (0.0-1.0)
-                    max_tokens=1000 # Limit response length to avoid excessively long outputs
+                    temperature=0.2, # Lower temperature for more deterministic and less creative output (good for correction)
+                    max_tokens=1000, # Limit the length of the LLM's response
                 )
-                full_feedback_text = response.choices[0].message.content
-            # elif self.llm_provider == "gemini":
-            #     response = self.client.generate_content(prompt)
-            #     full_feedback_text = response.text
+                raw_response_content = response.choices[0].message.content.strip()
+            elif self.llm_provider == "gemini":
+                # Google Gemini specific API call parameters
+                # For Gemini, system instructions are often part of the first user message or set in model config.
+                # Here, the prompt is self-contained.
+                response = self.client.generate_content(
+                    prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        temperature=0.2,
+                        max_output_tokens=1000,
+                    )
+                )
+                raw_response_content = response.text.strip()
             else:
-                raise ValueError("LLM provider not correctly configured or supported.")
+                # Should not be reached if __init__ handles unsupported providers
+                raise ValueError(f"Unknown LLM provider: {self.llm_provider}")
 
-            # --- Parsing the LLM's structured output ---
+            # Print raw response for debugging purposes (can be removed in production)
+            print("--- RAW LLM RESPONSE ---")
+            print(raw_response_content)
+            print("------------------------")
+
+            # --- Response Parsing Logic ---
+            # This logic is designed to be robust against slight variations in LLM output,
+            # by looking for specific markers.
+
             corrected_text = ""
             changes_list = []
 
-            # Look for the start and end markers to isolate the relevant part
+            # 1. Find the main response block using start/end markers
             start_marker = "---START_RESPONSE---"
             end_marker = "---END_RESPONSE---"
 
-            start_index = full_feedback_text.find(start_marker)
-            end_index = full_feedback_text.find(end_marker)
+            start_index = raw_response_content.find(start_marker)
+            end_index = raw_response_content.find(end_marker)
 
-            if start_index != -1 and end_index != -1 and end_index > start_index:
-                # Extract the content between markers
-                parsed_content = full_feedback_text[start_index + len(start_marker):end_index].strip()
+            if start_index == -1 or end_index == -1:
+                # If markers are not found, the LLM did not follow the format
+                raise RuntimeError("LLM response format markers not found. Cannot parse.")
 
-                corrected_text_marker = "CORRECTED_TEXT:"
-                changes_list_marker = "CHANGES_LIST:"
+            # Extract the content between the markers
+            response_block = raw_response_content[start_index + len(start_marker):end_index].strip()
 
-                corrected_text_start = parsed_content.find(corrected_text_marker)
-                changes_list_start = parsed_content.find(changes_list_marker)
+            # 2. Parse CORRECTED_TEXT and CHANGES_LIST within the block
+            corrected_text_marker = "CORRECTED_TEXT:"
+            changes_list_marker = "CHANGES_LIST:"
 
-                if corrected_text_start != -1 and changes_list_start != -1 and changes_list_start > corrected_text_start:
-                    corrected_text = parsed_content[corrected_text_start + len(corrected_text_marker):changes_list_start].strip()
-                    changes_raw = parsed_content[changes_list_start + len(changes_list_marker):].strip()
-                    
-                    # Split by newlines and filter/clean lines starting with '-'
-                    changes_list = [
-                        line.strip().lstrip('- ').strip()
-                        for line in changes_raw.split('\n')
-                        if line.strip().startswith('-') and line.strip().lstrip('- ').strip() # Ensure content after '-' exists
-                    ]
-                else:
-                    print(f"Warning: Inner parsing failed. Markers not found as expected. Raw content:\n{parsed_content}")
-                    corrected_text = "AI output format error: Could not parse corrected text or changes list. Please see raw output below."
-                    changes_list = [f"Raw LLM output (parsing failed): {parsed_content}"]
-            else:
-                # Fallback if the ---START_RESPONSE--- / ---END_RESPONSE--- markers are not found
-                print(f"Warning: LLM did not follow expected outer response format. Raw output:\n{full_feedback_text}")
-                corrected_text = "AI output format error: Could not find structured response markers. Please see raw output below."
-                changes_list = [f"Raw LLM output: {full_feedback_text}"]
+            corrected_text_start = response_block.find(corrected_text_marker)
+            changes_list_start = response_block.find(changes_list_marker)
+
+            if corrected_text_start == -1 or changes_list_start == -1:
+                # If internal markers are missing
+                raise RuntimeError("LLM response missing 'CORRECTED_TEXT:' or 'CHANGES_LIST:' markers.")
+
+            # Extract corrected text content
+            corrected_text = response_block[corrected_text_start + len(corrected_text_marker):changes_list_start].strip()
+
+            # Extract changes list content
+            changes_raw = response_block[changes_list_start + len(changes_list_marker):].strip()
+
+            # Split changes into a list, cleaning up bullet points and empty lines
+            for line in changes_raw.split('\n'):
+                stripped_line = line.strip()
+                if stripped_line and stripped_line != "- No changes needed.": # Handle "no changes" specifically
+                    # Remove common bullet point prefixes like '-', '*', '1.' etc.
+                    if stripped_line.startswith('- '):
+                        changes_list.append(stripped_line[2:].strip())
+                    elif stripped_line.startswith('* '):
+                        changes_list.append(stripped_line[2:].strip())
+                    elif stripped_line[0].isdigit() and stripped_line[1:2] == '. ': # Basic number. format
+                         changes_list.append(stripped_line[stripped_line.find('. ') + 2:].strip())
+                    else:
+                        changes_list.append(stripped_line) # Add as is if no standard bullet detected
+
+            # Special case: If LLM explicitly said "No changes needed." but list is empty after parsing
+            if not changes_list and "- No changes needed." in changes_raw:
+                changes_list.append("No changes needed.")
+
 
             return {
                 "corrected_text": corrected_text,
                 "changes_list": changes_list
             }
 
-        except openai.APIError as e: # <--- CHANGE 'APIErrors' to 'APIError'
-            print(f"OpenAI API Error: {e}")
-            # Note: e.status_code and e.response might not always be present for all APIError types.
-            # A safer generic message for all APIError types might be:
-            raise RuntimeError(f"OpenAI API Error: {e}")
-            # If you want to try to access status_code, you can, but wrap it in a check:
-            # error_detail = f"Status: {e.status_code}" if hasattr(e, 'status_code') else "No status code."
-            # raise RuntimeError(f"OpenAI API Error: {e} - {error_detail}")
+        # --- Error Handling for LLM API Calls ---
+        except (openai.APIError, genai.APIError) as e: # Catch specific API errors from providers
+            print(f"LLM API Error: {e}")
+            # Re-raise as a generic RuntimeError to be caught by the FastAPI endpoint
+            raise RuntimeError(f"LLM API Error: {e}")
+        except Exception as e:
+            # Catch any other unexpected errors during the process (e.g., parsing errors)
+            print(f"An unexpected error occurred during feedback generation: {e}")
+            raise RuntimeError(f"An unexpected error occurred during feedback generation: {e}")
 
-# Example usage (for testing ai_assistant.py directly)
-if __name__ == "__main__":
-    from dotenv import load_dotenv
-    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env')) # Load API keys from backend/.env
 
-    print("--- Testing EnglishWritingAssistant ---")
-    test_text_good = "I look forward to hear from you soonest regarding this matter."
-    test_text_bad = "This is a example text where grammer errors might by present, and the flow is not good too. I wanna improve it and make it more professional like."
-
-    try:
-        # --- Configure your LLM provider here ---
-        # For OpenAI:
-        assistant = EnglishWritingAssistant(llm_provider="openai", model_name="gpt-3.5-turbo")
-        # For Google Gemini (uncomment if you're using Gemini):
-        # assistant = EnglishWritingAssistant(llm_provider="gemini", model_name="gemini-pro")
-
-        print(f"\nAnalyzing Text 1: '{test_text_good}'")
-        feedback_result_good = assistant.get_feedback(test_text_good)
-        print("\n--- Parsed Feedback (Text 1) ---")
-        print("Corrected Text:", feedback_result_good["corrected_text"])
-        print("Changes List:")
-        for change in feedback_result_good["changes_list"]:
-            print(f"- {change}")
-
-        print(f"\nAnalyzing Text 2: '{test_text_bad}'")
-        feedback_result_bad = assistant.get_feedback(test_text_bad)
-        print("\n--- Parsed Feedback (Text 2) ---")
-        print("Corrected Text:", feedback_result_bad["corrected_text"])
-        print("Changes List:")
-        for change in feedback_result_bad["changes_list"]:
-            print(f"- {change}")
-
-    except Exception as e:
-        print(f"\nInitialization or test error: {e}")
+# --- Self-testing block
