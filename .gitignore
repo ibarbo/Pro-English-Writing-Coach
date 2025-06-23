@@ -23,6 +23,9 @@ htmlcov/
 .ipynb_checkpoints
 .conda/
 .vscode/ # VS Code specific settings
+# VS Code specific files
+.vscode/settings.json
+.vscode/*.code-workspace # If you use workspace files
 
 # Node.js / Frontend
 node_modules/

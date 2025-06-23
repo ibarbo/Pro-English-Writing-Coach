@@ -1,5 +1,3 @@
-/* frontend/src/App.css */
-
 /* General Body and Container Styles */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -40,6 +38,41 @@ body {
     font-size: 1.6em;
     font-weight: 600;
 }
+
+/* --- MODIFIED: Level Selector Section for Centering --- */
+.level-selector-section {
+    display: flex;
+    flex-direction: column; /* Stack label and select vertically */
+    align-items: center; /* Center items horizontally */
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+.level-selector-section label {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #555;
+    font-weight: bold;
+}
+
+.level-selector-section select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    width: auto; /* Allow content to define width */
+    max-width: 250px; /* Prevent it from becoming too wide */
+    text-align: center;
+    -moz-appearance: none; /* Remove default arrow in Firefox */
+    -webkit-appearance: none; /* Remove default arrow in Chrome/Safari */
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000%22%20d%3D%22M287%2C114.7L154.5%2C247.3c-2.3%2C2.3-5.3%2C3.5-8.5%2C3.5s-6.2-1.2-8.5-3.5L5.4%2C114.7c-4.7-4.7-4.7-12.4%2C0-17.1s12.4-4.7%2C17.1%2C0l131.6%2C131.6L269.9%2C97.6c4.7-4.7%2C12.4-4.7%2C17.1%2C0S291.7%2C110%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    padding-right: 30px; /* Make space for the arrow */
+}
+
 
 /* Input Section Styles */
 .input-section,
@@ -198,20 +231,177 @@ body {
     margin-bottom: 15px;
 }
 
-.load-task-button {
-    padding: 10px 20px;
-    font-size: 0.95em;
-    background-color: #52c41a; /* Green button */
+/* --- NEW STYLE FOR WORD COUNTER --- */
+.word-count {
+    text-align: right;
+    color: #666;
+    font-size: 0.9em;
+    margin-top: -15px; /* Adjust as needed to position it near the textarea */
+    margin-bottom: 15px;
+}
+
+/* --- MODIFIED: Styles for Optional Writing Context Input (now inside .input-section) --- */
+.context-input-section {
+    margin-bottom: 20px; /* Space between context and textarea */
+    text-align: left; /* Align content to the left within its parent's padding */
+    padding: 0; /* Remove previous padding, as parent .input-section has it */
+}
+
+.context-input-section label {
+    display: block; /* Make label take full width and put input on next line */
+    margin-bottom: 8px; /* Space between label and input */
+    font-size: 1em; /* Adjusted font size */
+    color: #555;
+    font-weight: normal; /* Less bold, more subtle */
+}
+
+.context-input {
+    width: 100%; /* Take full width of parent .input-section padding */
+    padding: 10px 12px; /* Slightly adjusted padding */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.95em; /* Slightly smaller font for input */
+    box-sizing: border-box; /* Include padding in width */
+    max-width: none; /* Override previous max-width if any */
+}
+
+.context-input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+}
+
+/* --- MODIFIED: Styles for Start New Button --- */
+.action-buttons {
+    margin-bottom: 30px;
+    text-align: center; /* Center the button */
+}
+
+.start-new-button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    background-color: transparent; /* No fill */
+    color: #28a745; /* Green text */
+    border: 2px solid #28a745; /* Green border */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2); /* Subtle green shadow */
+}
+
+.start-new-button:hover {
+    background-color: #28a745; /* Fill on hover */
+    color: white; /* White text on hover */
+    border-color: #28a745;
+}
+
+.start-new-button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    border-color: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+
+/* --- ADDED: Styles for Feature Selector (Radio Buttons) --- */
+.feature-selector-section {
+    display: flex;
+    justify-content: center; /* Center the radio buttons */
+    gap: 30px; /* Space between radio buttons */
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    font-size: 1.1em;
+    color: #333;
+    cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+    margin-right: 8px;
+    transform: scale(1.2); /* Make radio buttons slightly larger */
+}
+
+
+/* --- ADDED: Styles for Vocabulary Section --- */
+.vocab-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f7e6ff; /* Light purple background */
+    border: 1px solid #d591ff; /* Purple border */
+    border-radius: 8px;
+    text-align: center;
+}
+
+.vocab-topic-input {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.vocab-topic-input label {
+    margin-right: 10px;
+    font-size: 1.1em;
+    color: #555;
+    font-weight: bold;
+}
+
+.get-vocab-button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    background-color: #9932CC; /* Darker purple */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-bottom: 20px;
 }
 
-.load-task-button:hover {
-    background-color: #389e08;
+.get-vocab-button:hover {
+    background-color: #800080; /* Even darker purple */
 }
+
+.get-vocab-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.vocabulary-display {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #fbf0ff; /* Very light purple */
+    border: 1px dashed #e3b0ff; /* Dashed border for vocabulary */
+    border-radius: 5px;
+    text-align: left;
+}
+
+.vocabulary-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.vocabulary-item {
+    background-color: #ffffff;
+    border-bottom: 1px dashed #e0d0f0;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    color: #495057;
+    font-size: 0.98em;
+}
+
+.vocabulary-item:last-child {
+    border-bottom: none;
+}
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -230,13 +420,18 @@ body {
         margin-bottom: 15px;
     }
 
-    .submit-button, .get-task-button, .load-task-button {
+    .submit-button, .get-task-button, .get-vocab-button { /* Added get-vocab-button */
         padding: 12px;
         font-size: 1em;
     }
 
     .text-input {
         min-height: 120px;
+    }
+
+    .feature-selector-section {
+        flex-direction: column; /* Stack radios vertically on small screens */
+        gap: 15px;
     }
 }
 
@@ -259,7 +454,7 @@ body {
         margin-bottom: 10px;
     }
 
-    .changes-list li {
+    .changes-list li, .vocabulary-item { /* Added vocabulary-item */
         padding: 8px 10px;
         font-size: 0.9em;
     }
@@ -272,35 +467,4 @@ body {
     font-size: 0.9em;
     margin-top: -15px; /* Adjust as needed to position it near the textarea */
     margin-bottom: 15px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    /* ... (existing media queries) ... */
-    .word-count {
-        margin-top: -10px;
-        margin-bottom: 10px;
-    }
-}
-
-.action-buttons {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.start-new-button {
-  background-color: #28a745; /* Green color */
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.2s ease;
-}
-
-.start-new-button:hover {
-  background-color: #218838; /* Darker green on hover */
 }
