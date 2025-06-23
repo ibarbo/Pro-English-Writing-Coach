@@ -12,20 +12,16 @@ This project adopts a modern decoupled architecture, separating the core AI logi
 
 ---
 
-## ✨ Core Features (Initial Focus)
+## ✨ Features
 
-For our initial development phase, we have implemented the following essential functionalities, establishing a strong foundation:
+This application currently provides the following core functionalities:
 
-**Intelligent Text Analysis (Backend):**
-* Utilizes Large Language Models (LLMs) (e.g., OpenAI's GPT models or Google's Gemini) to perform deep linguistic analysis.
-* Identifies and corrects grammar errors, spelling mistakes, and awkward phrasing.
-* Provides a structured output containing the corrected text and a detailed list of specific changes with brief, educational explanations.
-
-**Intuitive User Interface (Frontend):**
-* A clean, responsive web interface for users to input their English text.
-* Clearly displays the AI's corrected version of the text.
-* Presents the list of specific changes in an easy-to-read, actionable format for learning.
-* **Graceful Handling of Loading States and Error Messages.**
+* **English Level Selection:** Users can choose a target English proficiency level (B1, B2, C1) to tailor feedback and content, aligning with the project's goal to achieve C1 proficiency.
+* **Writing Feedback:** Utilizes Large Language Models (LLMs) to perform deep linguistic analysis, identifying and correcting grammar errors, spelling mistakes, and awkward phrasing. It provides a structured output containing the corrected text and a detailed list of specific changes with brief, educational explanations.
+* **Optional Writing Context:** Users can provide an optional context (e.g., "professional email", "essay") for their writing to receive more relevant and tailored feedback.
+* **Daily Writing Tasks:** Generates daily writing prompts or exercises based on the selected English level to encourage consistent practice and structured learning.
+* **Vocabulary List Generation:** Generates a list of relevant vocabulary words with definitions and example sentences, optionally based on a specific topic. This feature addresses the vocabulary aspect previously outlined in the roadmap.
+* **Intuitive User Interface:** A clean, responsive web interface for users to input text, clearly displaying AI corrections, and presenting changes in an easy-to-read, actionable format. Includes graceful handling of loading states and error messages.
 
 ---
 
@@ -82,8 +78,6 @@ pro-english-writing-coach/
 ```
 ---
 
----
-
 ## ⚙️ Getting Started (Step-by-Step Setup)
 
 To get this project running locally, you'll need to set up both the backend and the frontend.
@@ -97,7 +91,7 @@ To get this project running locally, you'll need to set up both the backend and 
 
 1.  **Clone the Repository:**
     ```bash
-    git clone [https://github.com/your-username/pro-english-writing-coach.git](https://github.com/your-username/pro-english-writing-coach.git)
+    git clone https://github.com/ibarbo/Pro-English-Writing-Coach.git
     cd pro-english-writing-coach
     ```
 
@@ -127,8 +121,10 @@ To get this project running locally, you'll need to set up both the backend and 
     ```
     fastapi
     uvicorn[standard]
-    openai # Or google-generativeai
+    openai
+    google-generativeai
     python-dotenv
+    python-multipart
     ```
     Then install:
     ```bash
@@ -213,9 +209,8 @@ This project's overarching goal is to become an indispensable tool for non-nativ
 ## 📈 Future Enhancements (Roadmap)
 As a blank canvas, the possibilities are vast! Planned future enhancements include:
 
-* **Daily Writing Tasks:** Provide users with daily prompts or exercises to encourage consistent practice and structured learning, potentially with gamification elements.
 * **Advanced Grammar & Style Focus:** Granular control for users to target specific grammar rules (e.g., article usage, conditional sentences), conciseness, or tone.
-* **Vocabulary & Idiom Suggestions:** Smart suggestions for synonyms, collocations, and idiomatic expressions to enrich writing.
+* **Idiom Suggestions:** Smart suggestions for idiomatic expressions to enrich writing. (Note: The vocabulary list generation part of this has been implemented.)
 * **Personalized Progress Tracking:** User accounts to track common errors over time, show improvement metrics, and offer tailored exercises.
 * **Interactive Learning Modules:** Short, guided lessons or prompts based on identified weaknesses.
 * **Multi-Modal Input:** Potentially allow voice input or document uploads.
