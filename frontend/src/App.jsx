@@ -1,6 +1,7 @@
 // frontend/src/App.jsx
 import { useState } from 'react';
 import axios from 'axios'; // For making HTTP requests
+import './App.css';
 
 function App() {
   const [inputText, setInputText] = useState('');

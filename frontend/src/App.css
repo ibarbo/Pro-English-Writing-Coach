@@ -1,0 +1,107 @@
+/* frontend/src/App.css */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7f6;
+  color: #333;
+}
+
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background-color: #ffffff;
+}
+
+.title {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 1.3em;
+  color: #34495e;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 5px;
+}
+
+.text-input {
+  width: calc(100% - 22px); /* Account for padding and border */
+  min-height: 180px;
+  padding: 10px;
+  font-size: 1.1em;
+  border: 1px solid #c0c0c0;
+  border-radius: 5px;
+  resize: vertical;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  transition: border-color 0.3s ease;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.submit-button {
+  padding: 12px 25px;
+  font-size: 1.1em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Make button full width */
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #d9534f;
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #d9534f;
+  border-radius: 5px;
+  background-color: #f2dede;
+  font-weight: bold;
+}
+
+.corrected-text-display {
+  background-color: #eaf3f8; /* Light blue background for corrected text */
+  padding: 18px;
+  border: 1px solid #b3d9ff; /* Blue border */
+  border-radius: 5px;
+  line-height: 1.7em;
+  white-space: pre-wrap; /* Preserve whitespace and line breaks */
+  font-size: 1.1em;
+  color: #2a527a; /* Darker blue text */
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.changes-list {
+  list-style-type: disc;
+  padding-left: 25px;
+  margin-top: 15px;
+}
+
+.changes-list li {
+  margin-bottom: 10px;
+  line-height: 1.5em;
+  color: #4a4a4a;
+}
