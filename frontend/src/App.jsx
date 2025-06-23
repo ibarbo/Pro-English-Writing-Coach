@@ -1,6 +1,6 @@
 // frontend/src/App.jsx
-import { useState } from 'react';
-import axios from 'axios'; // For making HTTP requests
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import './App.css';
 
 function App() {
@@ -9,14 +9,32 @@ function App() {
   const [changesList, setChangesList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [dailyTask, setDailyTask] = useState(''); // Holds the fetched daily task
+  const [loadingTask, setLoadingTask] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
 
-  const API_BASE_URL = 'http://localhost:5000'; // Your FastAPI backend URL
+  // showWritingArea state can be removed or simplified if the main input is always visible.
+  // For now, let's just make the main input section always visible.
+
+  const API_BASE_URL = 'http://localhost:5000';
+
+  // useEffect for word counting. This remains simple and counts only inputText.
+  useEffect(() => {
+    const words = inputText.trim().split(/\s+/).filter(word => word.length > 0);
+    setWordCount(words.length);
+  }, [inputText]);
+
 
   const handleSubmit = async () => {
-    setError(null); // Clear previous errors
-    setLoading(true); // Indicate loading state
-    setCorrectedText(''); // Clear previous results
+    setError(null);
+    setLoading(true);
+    // When getting feedback, clear previous daily task if it's there
+    // This makes the UI clean for new feedback sessions.
+    setDailyTask('');
+    // Clear previous feedback results
+    setCorrectedText('');
     setChangesList([]);
+
 
     try {
       const response = await axios.post(`${API_BASE_URL}/api/v1/feedback`, {
@@ -28,65 +46,132 @@ function App() {
 
     } catch (err) {
       console.error("Error fetching feedback:", err);
-      // More user-friendly error message
       if (err.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         setError(err.response.data.detail || 'An error occurred with the API. Please try again.');
       } else if (err.request) {
-        // The request was made but no response was received
         setError('No response from the server. Is the backend running?');
       } else {
-        // Something else happened in setting up the request that triggered an Error
         setError('An unexpected error occurred. Please check your network.');
       }
+      setCorrectedText('');
+      setChangesList([]);
     } finally {
-      setLoading(false); // End loading state
+      setLoading(false);
     }
   };
 
-  return (
-    <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '40px auto', padding: '20px', border: '1px solid #eee', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-      <h1 style={{ textAlign: 'center', color: '#333' }}>English Writing Coach</h1>
+  const fetchDailyTask = async () => {
+    setError(null);
+    setLoadingTask(true);
 
-      <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '1.2em', color: '#555' }}>Your Text</h2>
+    // When fetching a new task, clear previous results, but keep current input if desired
+    setDailyTask(''); // Clear previous task display
+    setCorrectedText(''); // Clear previous corrections
+    setChangesList([]); // Clear previous changes
+
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/v1/daily-task`);
+      setDailyTask(response.data.task);
+    } catch (err) {
+      console.error("Error fetching daily task:", err);
+      if (err.response) {
+        setError(err.response.data.detail || 'Failed to fetch daily task from API.');
+      } else if (err.request) {
+        setError('No response from the server when fetching daily task. Is the backend running?');
+      } else {
+        setError('An unexpected error occurred while fetching daily task. Please check your network.');
+      }
+    } finally {
+      setLoadingTask(false);
+    }
+  };
+
+  // New function to start a fresh writing session (clears input, not task)
+  const startNewWritingSession = () => {
+    setInputText(''); // Clear user's input
+    setWordCount(0); // Reset word count
+    setCorrectedText(''); // Clear feedback
+    setChangesList([]); // Clear feedback list
+    setDailyTask(''); // Clear task if it was there, for a completely fresh start
+    setError(null); // Clear any errors
+  };
+
+  return (
+    <div className="container">
+      <h1 className="title">English Writing Coach</h1>
+
+      {/* Button to start a new blank writing session */}
+      <div className="action-buttons">
+        <button
+          className="start-new-button"
+          onClick={startNewWritingSession}
+        >
+          Start a New Blank Writing Session
+        </button>
+      </div>
+
+
+      {/* Daily Task Section - remains visible when task is fetched */}
+      <div className="daily-task-section">
+        <button
+          className="get-task-button"
+          onClick={fetchDailyTask}
+          disabled={loadingTask}
+        >
+          {loadingTask ? 'Generating Task...' : 'Get Daily Writing Task'}
+        </button>
+        {dailyTask && (
+          <div className="task-display">
+            <h2 className="section-title">Daily Task</h2>
+            <p>{dailyTask}</p> {/* Task is now displayed here permanently */}
+            {/* The 'Start Writing This Task' button is removed as input is always visible.
+                Users just type in the main input area below, referring to the task above. */}
+          </div>
+        )}
+      </div>
+
+      {/* --- Main Writing/Feedback Area - Always visible --- */}
+      <div className="input-section">
+        <h2 className="section-title">Your Text</h2>
         <textarea
-          style={{ width: '100%', minHeight: '150px', padding: '10px', fontSize: '1em', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }}
-          placeholder="Enter the text you want to get feedback on..."
+          className="text-input"
+          placeholder="Enter the text you want to get feedback on, or start writing your daily task response here..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
         ></textarea>
+        <div className="word-count">
+          Word Count: {wordCount}
+        </div>
         <button
-          style={{ padding: '10px 20px', fontSize: '1em', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '10px' }}
+          className="submit-button"
           onClick={handleSubmit}
-          disabled={loading || inputText.trim() === ''} // Disable button when loading or input is empty
+          disabled={loading || inputText.trim() === ''}
         >
           {loading ? 'Analyzing...' : 'Get Feedback'}
         </button>
       </div>
 
       {error && (
-        <div style={{ color: 'red', marginBottom: '20px', padding: '10px', border: '1px solid red', borderRadius: '4px', backgroundColor: '#ffe6e6' }}>
+        <div className="error-message">
           Error: {error}
         </div>
       )}
 
       {correctedText && (
-        <div style={{ marginBottom: '20px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
-          <h2 style={{ fontSize: '1.2em', color: '#555' }}>Corrected Text</h2>
-          <p style={{ backgroundColor: '#f9f9f9', padding: '15px', border: '1px solid #ddd', borderRadius: '4px', lineHeight: '1.6em', whiteSpace: 'pre-wrap' }}>
+        <div className="output-section">
+          <h2 className="section-title">Corrected Text</h2>
+          <p className="corrected-text-display">
             {correctedText}
           </p>
         </div>
       )}
 
       {changesList.length > 0 && (
-        <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
-          <h2 style={{ fontSize: '1.2em', color: '#555' }}>Changes Made</h2>
-          <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+        <div className="changes-section">
+          <h2 className="section-title">Changes Made</h2>
+          <ul className="changes-list">
             {changesList.map((change, index) => (
-              <li key={index} style={{ marginBottom: '8px', lineHeight: '1.4em' }}>{change}</li>
+              <li key={index}>{change}</li>
             ))}
           </ul>
         </div>

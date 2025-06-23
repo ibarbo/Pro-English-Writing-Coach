@@ -1,107 +1,306 @@
 /* frontend/src/App.css */
+
+/* General Body and Container Styles */
 body {
-  margin: 0;
-  font-family: 'Arial', sans-serif;
-  background-color: #f4f7f6;
-  color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
 }
 
 .container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  background-color: #ffffff;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    max-width: 900px;
+    width: 100%;
+    margin: 20px auto;
 }
 
 .title {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
-  font-size: 2.2em;
-  font-weight: 600;
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 40px;
+    font-size: 2.5em;
+    font-weight: 700;
 }
 
 .section-title {
-  font-size: 1.3em;
-  color: #34495e;
-  margin-top: 25px;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 5px;
+    color: #34495e;
+    border-bottom: 2px solid #eceff1;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.6em;
+    font-weight: 600;
+}
+
+/* Input Section Styles */
+.input-section,
+.output-section,
+.changes-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fdfdfd;
 }
 
 .text-input {
-  width: calc(100% - 22px); /* Account for padding and border */
-  min-height: 180px;
-  padding: 10px;
-  font-size: 1.1em;
-  border: 1px solid #c0c0c0;
-  border-radius: 5px;
-  resize: vertical;
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
-  transition: border-color 0.3s ease;
+    width: calc(100% - 20px);
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    min-height: 150px;
+    resize: vertical;
+    box-sizing: border-box; /* Include padding in width */
 }
 
 .text-input:focus {
-  outline: none;
-  border-color: #007bff;
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
 }
 
 .submit-button {
-  padding: 12px 25px;
-  font-size: 1.1em;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 15px;
-  transition: background-color 0.3s ease;
-  width: 100%; /* Make button full width */
+    display: block;
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .submit-button:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 .submit-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+    background-color: #cccccc;
+    cursor: not-allowed;
 }
 
-.error-message {
-  color: #d9534f;
-  margin-top: 20px;
-  padding: 15px;
-  border: 1px solid #d9534f;
-  border-radius: 5px;
-  background-color: #f2dede;
-  font-weight: bold;
-}
-
+/* Output Section Styles */
 .corrected-text-display {
-  background-color: #eaf3f8; /* Light blue background for corrected text */
-  padding: 18px;
-  border: 1px solid #b3d9ff; /* Blue border */
-  border-radius: 5px;
-  line-height: 1.7em;
-  white-space: pre-wrap; /* Preserve whitespace and line breaks */
-  font-size: 1.1em;
-  color: #2a527a; /* Darker blue text */
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    background-color: #e9f7ef;
+    border: 1px solid #d4edda;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 1.05em;
+    white-space: pre-wrap; /* Preserves whitespace and wraps text */
+    word-wrap: break-word; /* Breaks long words */
+    color: #155724;
 }
 
 .changes-list {
-  list-style-type: disc;
-  padding-left: 25px;
-  margin-top: 15px;
+    list-style-type: none; /* Remove default bullet points */
+    padding: 0;
+    margin: 0;
 }
 
 .changes-list li {
-  margin-bottom: 10px;
-  line-height: 1.5em;
-  color: #4a4a4a;
+    background-color: #f8f9fa;
+    border-bottom: 1px dashed #e9ecef;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    color: #495057;
+    font-size: 0.95em;
+    display: flex;
+    align-items: flex-start;
+}
+
+.changes-list li:last-child {
+    border-bottom: none;
+}
+
+/* Custom bullet point for changes list */
+.changes-list li::before {
+    content: '•'; /* Unicode bullet point */
+    color: #007bff; /* Blue color for bullets */
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em; /* Negative margin to pull bullet left */
+    margin-right: 0.5em; /* Space between bullet and text */
+}
+
+
+/* Error Message Styles */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* --- NEW STYLES FOR DAILY TASK FEATURE --- */
+
+.daily-task-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #e6f7ff; /* Light blue background */
+    border: 1px solid #91d5ff; /* Blue border */
+    border-radius: 8px;
+    text-align: center;
+}
+
+.get-task-button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    background-color: #1890ff; /* A different shade of blue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 20px; /* Space below button */
+}
+
+.get-task-button:hover {
+    background-color: #096dd9;
+}
+
+.get-task-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.task-display {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f0f8ff; /* Even lighter blue */
+    border: 1px dashed #a3daff; /* Dashed border for prompt */
+    border-radius: 5px;
+    text-align: left;
+}
+
+.task-display p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #2c5a7a;
+    margin-bottom: 15px;
+}
+
+.load-task-button {
+    padding: 10px 20px;
+    font-size: 0.95em;
+    background-color: #52c41a; /* Green button */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.load-task-button:hover {
+    background-color: #389e08;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 10px auto;
+    }
+
+    .title {
+        font-size: 2em;
+        margin-bottom: 30px;
+    }
+
+    .section-title {
+        font-size: 1.4em;
+        margin-bottom: 15px;
+    }
+
+    .submit-button, .get-task-button, .load-task-button {
+        padding: 12px;
+        font-size: 1em;
+    }
+
+    .text-input {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    .title {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+    }
+
+    .section-title {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+
+    .changes-list li {
+        padding: 8px 10px;
+        font-size: 0.9em;
+    }
+}
+
+/* --- NEW STYLE FOR WORD COUNTER --- */
+.word-count {
+    text-align: right;
+    color: #666;
+    font-size: 0.9em;
+    margin-top: -15px; /* Adjust as needed to position it near the textarea */
+    margin-bottom: 15px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    /* ... (existing media queries) ... */
+    .word-count {
+        margin-top: -10px;
+        margin-bottom: 10px;
+    }
+}
+
+.action-buttons {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.start-new-button {
+  background-color: #28a745; /* Green color */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s ease;
+}
+
+.start-new-button:hover {
+  background-color: #218838; /* Darker green on hover */
 }
